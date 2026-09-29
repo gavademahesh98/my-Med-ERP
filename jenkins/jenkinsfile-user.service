@@ -18,7 +18,7 @@ pipeline{
         stage('maven-build'){
             steps{
                 dir('user-service'){
-                    sh mvn clean package
+                    sh 'mvn clean package'
                 }
             }
             post{
@@ -31,7 +31,7 @@ pipeline{
             steps{
                 dir('user-service'){
                     withSonarQubeEnv('sonar-server'){
-                        mvn sonar:sonar
+                       sh 'mvn sonar:sonar'
                     }
                 }
             }
