@@ -151,15 +151,14 @@ pipeline{
                         passwordVariable: 'PASSWORD'
                     )
                 ]) {
-                    sh """
-                    git config --global user.name 'jenkins_build_${BUILD_NUMBER}
-                    git config --global user.email 'jenkins.buildnumber_${BUILD_NUMBER}@gmail.com'
+                    sh '''
+                    git config --global user.name 'jenkins_build_$BUILD_NUMBER
+                    git config --global user.email 'jenkins.buildnumber_$BUILD_NUMBER@gmail.com'
                     git add k8s/deployments/user-service-deployment.yaml
-                    git commit -m 'user-service-deployment.yaml image change'
-                    git push https://${USERNAME}:${PASSWORD}@github.com/gavademahesh98/my-Med-ERP.git  HEAD:dev
-                    """
+                    git commit -m 'Update user-service image to build $BUILD_NUMBER' || true
+                    git push https://$USERNAME:$PASSWORD@github.com/gavademahesh98/my-Med-ERP.git  HEAD:dev
+                    '''
                 }
-               
             }
         }
         
