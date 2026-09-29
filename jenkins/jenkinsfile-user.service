@@ -27,7 +27,7 @@ pipeline{
                 }
             }
         }
-        /*stage('sonar-scan'){
+        stage('sonar-scan'){
             steps{
                 dir('user-service'){
                     withSonarQubeEnv('sonar-server'){
@@ -35,6 +35,6 @@ pipeline{
                     }
                 }
             }
-        }*/
+        }
     }
 }
