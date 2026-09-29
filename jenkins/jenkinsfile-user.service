@@ -73,5 +73,24 @@ pipeline{
                         }
                 }
         }
+        stage('artifacts to s3'){
+            steps{
+                sh 'aws s3 cp user-service/target/*.jar  s3://dev-user-service-artifacts/'
+            }
+        }
+        stage('docker-build-service'){
+            steps{
+                dir('user-service'){
+                    sh "docker build -t dev-user-service:${BUILD_NUMBER} . "
+                    sh 'docker images'
+                }
+            }
+        }
+        stage('Trivy image Scan'){
+            steps{
+                
+            }
+        }
+
     }
 }
