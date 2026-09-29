@@ -5,6 +5,9 @@ pipeline{
     tools{
         terraform 'tf'
     }
+    environment{
+        aws_cred=credentials('aws-cred')
+    }
     stages{
         stage('checkout-SCM'){
             steps{
