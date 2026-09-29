@@ -23,7 +23,7 @@ pipeline{
             }
             post{
                 success{
-                    archiveArtifacts artifacts: 'user-service/target/*.jar' , fingerprint: true 
+                    archiveArtifacts artifacts: '**user-service/target/*.jar' , fingerprint: true 
                 }
             }
         }
