@@ -134,6 +134,8 @@ pipeline{
 
                 docker tag dev-user-service:${BUILD_NUMBER} ${REPO}:${BUILD_NUMBER}
                 docker push ${REPO}:${BUILD_NUMBER}
+                 echo "Cleaning unused Docker images..."
+                 docker image prune -a -f
                 """
             }
         }
