@@ -8,7 +8,7 @@ pipeline{
     }
     environment{
         aws_cred=credentials('aws-cred')
-        REPO='655887417250.dkr.ecr.ap-southeast-1.amazonaws.com/dev-product-service'
+        REPO='655887417250.dkr.ecr.ap-southeast-1.amazonaws.com/dev-order-service'
     }
     stages{
         stage('checkout-scm'){
@@ -18,19 +18,19 @@ pipeline{
         }
         stage('maven-build'){
             steps{
-                dir('product-service'){
+                dir('order-service'){
                     sh 'mvn clean package'
                 }
             }
             post{
                 success{
-                    archiveArtifacts artifacts: '**product-service/target/*.jar' , fingerprint: true 
+                    archiveArtifacts artifacts: '**order-service/target/*.jar' , fingerprint: true 
                 }
             }
         }
         stage('sonar-scan'){
             steps{
-                dir('product-service'){
+                dir('order-service'){
                     withSonarQubeEnv('sonar-server'){
                        sh 'mvn org.sonarsource.scanner.maven:sonar-maven-plugin:sonar'
                     }
@@ -49,7 +49,7 @@ pipeline{
                             script {
 
                                 def sonarProperties =
-                                    readProperties file: 'product-service/target/sonar/report-task.txt'
+                                    readProperties file: 'order-service/target/sonar/report-task.txt'
 
                                 def sonarIssuesUrl =
                                     "${sonarProperties.serverUrl}/project/issues?id=${URLEncoder.encode(sonarProperties.projectKey, 'UTF-8')}"
@@ -76,13 +76,13 @@ pipeline{
         }
         stage('artifacts to s3'){
             steps{
-                sh 'aws s3 cp product-service/target/*.jar  s3://dev-product-service-artifacts/'
+                sh 'aws s3 cp order-service/target/*.jar  s3://dev-order-service-artifacts/'
             }
         }
         stage('docker-build-service'){
             steps{
-                dir('product-service'){
-                    sh "docker build -t dev-product-service:${BUILD_NUMBER} . "
+                dir('order-service'){
+                    sh "docker build -t dev-order-service:${BUILD_NUMBER} . "
                     sh 'docker images'
                 }
             }
@@ -98,7 +98,7 @@ pipeline{
                         --severity HIGH,CRITICAL \
                         --ignore-unfixed \
                         --format table \
-                        dev-product-service:${BUILD_NUMBER} \
+                        dev-order-service:${BUILD_NUMBER} \
                         | iconv -f UTF-8 -t ASCII//TRANSLIT \
                         > trivy-report.txt
                 """
@@ -111,7 +111,7 @@ pipeline{
                         --severity HIGH,CRITICAL \
                         --ignore-unfixed \
                         --exit-code 0 \
-                        dev-product-service:${BUILD_NUMBER}
+                        dev-order-service:${BUILD_NUMBER}
                 """
             }
 
@@ -129,10 +129,10 @@ pipeline{
             steps{
                 sh """
                 aws ecr get-login-password --region ap-southeast-1 | \
-                docker login --productname AWS --password-stdin \
+                docker login --ordername AWS --password-stdin \
                 655887417250.dkr.ecr.ap-southeast-1.amazonaws.com
 
-                docker tag dev-product-service:${BUILD_NUMBER} ${REPO}:${BUILD_NUMBER}
+                docker tag dev-order-service:${BUILD_NUMBER} ${REPO}:${BUILD_NUMBER}
                 docker push ${REPO}:${BUILD_NUMBER}
                  echo "Cleaning unused Docker images..."
                  docker image prune -a -f
@@ -141,27 +141,27 @@ pipeline{
         }
         stage('image change in deployment'){
             steps{
-                sh 'sed -i "s|image: .*|image: $REPO:$BUILD_NUMBER|" k8s/deployments/product-service-deployment.yaml '
+                sh 'sed -i "s|image: .*|image: $REPO:$BUILD_NUMBER|" k8s/deployments/order-service-deployment.yaml '
             }
         }
         stage('Image update push') {
             steps {
                 withCredentials([
-                    productnamePassword(
+                    ordernamePassword(
                         credentialsId: 'github-cred',
-                        productnameVariable: 'productNAME',
+                        ordernameVariable: 'USERNAME',
                         passwordVariable: 'PASSWORD'
                     )
                 ]) {
                     sh '''
-                        git config --global product.name "jenkins_build_$BUILD_NUMBER"
-                        git config --global product.email "jenkins.buildnumber_$BUILD_NUMBER@gmail.com"
+                        git config --global user.name "jenkins_build_$BUILD_NUMBER"
+                        git config --global user.email "jenkins.buildnumber_$BUILD_NUMBER@gmail.com"
 
-                        git add k8s/deployments/product-service-deployment.yaml
+                        git add k8s/deployments/order-service-deployment.yaml
 
-                        git commit -m "Update product-service image to build $BUILD_NUMBER" || true
+                        git commit -m "Update order-service image to build $BUILD_NUMBER" || true
 
-                        git push https://$productNAME:$PASSWORD@github.com/gavademahesh98/my-Med-ERP.git HEAD:dev
+                        git push https://$USERNAME:$PASSWORD@github.com/gavademahesh98/my-Med-ERP.git HEAD:dev
                       '''
                     }
             }
