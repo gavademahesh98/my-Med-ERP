@@ -1,0 +1,40 @@
+pipeline{
+    agent{
+        label 'worker'
+    }
+    tools{
+        maven 'mvn'
+        jdk 'java17'
+    }
+    environment{
+        aws_cred=credentials('aws-cred')
+    }
+    stages{
+        stage('checkout-scm'){
+            steps{
+                git branch: 'dev', url: 'https://github.com/gavademahesh98/my-Med-ERP.git'
+            }
+        }
+        stage('maven-build'){
+            steps{
+                dir('user-service'){
+                    sh mvn clean package
+                }
+            }
+            post{
+                success{
+                    archiveArtifacts artifacts: 'user-service/target/*.jar' , fingerprint: true 
+                }
+            }
+        }
+        stage('sonar-scan'){
+            steps{
+                dir('user-service'){
+                    withSonarQubeEnv('sonar-server'){
+                        mvn sonar:sonar
+                    }
+                }
+            }
+        }
+    }
+}
