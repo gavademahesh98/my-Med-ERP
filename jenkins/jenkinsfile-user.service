@@ -97,7 +97,7 @@ pipeline{
                         --severity HIGH,CRITICAL \
                         --ignore-unfixed \
                         --format table \
-                        backend-service:${BUILD_NUMBER} \
+                        dev-user-service:${BUILD_NUMBER} \
                         | iconv -f UTF-8 -t ASCII//TRANSLIT \
                         > trivy-report.txt
                 """
@@ -110,7 +110,7 @@ pipeline{
                         --severity HIGH,CRITICAL \
                         --ignore-unfixed \
                         --exit-code 1 \
-                        backend-service:${BUILD_NUMBER}
+                        dev-user-service:${BUILD_NUMBER}
                 """
             }
 
