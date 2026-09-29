@@ -147,7 +147,7 @@ pipeline{
         stage('Image update push') {
             steps {
                 withCredentials([
-                    productnamePassword(
+                    usernamePassword(
                         credentialsId: 'github-cred',
                         usernameVariable: 'USERNAME',
                         passwordVariable: 'PASSWORD'
