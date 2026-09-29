@@ -8,6 +8,7 @@ pipeline{
     }
     environment{
         aws_cred=credentials('aws-cred')
+        REPO='655887417250.dkr.ecr.ap-southeast-1.amazonaws.com/dev-user-service'
     }
     stages{
         stage('checkout-scm'){
@@ -122,6 +123,18 @@ pipeline{
                         allowEmptyArchive: false
                     )
                 }
+            }
+        }
+        stage('image push to ECR'){
+            steps{
+                sh """
+                aws ecr get-login-password --region ap-southeast-1 | \
+                docker login --username AWS --password-stdin \
+                655887417250.dkr.ecr.ap-southeast-1.amazonaws.com
+
+                docker tag dev-user-service:${BUILD_NUMBER} ${REPO}:${BUILD_NUMBER}
+                docker push ${REPO}:${BUILD_NUMBER}
+                """
             }
         }
         
