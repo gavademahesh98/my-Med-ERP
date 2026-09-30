@@ -153,6 +153,7 @@ pipeline{
                         passwordVariable: 'PASSWORD'
                     )
                 ]) {
+                    lock(resource: 'git-push'){
                     sh '''
                         git config --global user.name "jenkins_build_$BUILD_NUMBER"
                         git config --global user.email "jenkins.buildnumber_$BUILD_NUMBER@gmail.com"
@@ -160,14 +161,18 @@ pipeline{
                         git add k8s/deployments/user-service-deployment.yaml
 
                         git commit -m "Update user-service image to build $BUILD_NUMBER" || true
+                        
+                        git pull --rebase origin dev
 
                         git push https://$USERNAME:$PASSWORD@github.com/gavademahesh98/my-Med-ERP.git HEAD:dev
                       '''
+                    }
                     }
             }
         }
         stage('deployment-user-service'){
             steps{
+                
                 sh '''
                 aws eks update-kubeconfig --region ap-southeast-1 --name dev-cluster
                 kubectl apply -f k8s/namespace/
@@ -177,6 +182,7 @@ pipeline{
                 kubectl apply -f k8s/services/
                 kubectl apply -f k8s/hpa/
                 '''
+                
             }
         }
     }
