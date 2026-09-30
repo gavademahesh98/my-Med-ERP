@@ -83,5 +83,10 @@ pipeline{
                         }
                 }
         }
+        stage('Push to s3'){
+            steps{
+                sh 'aws s3 cp frontend/dist/** s3://dev-frontend-service-artifacts/'
+            }
+        }
     }
 }
