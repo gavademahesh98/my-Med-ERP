@@ -30,11 +30,18 @@ pipeline{
                 }
             }
         }
-        stage('sonar-scan'){
-            steps{
-                dir('frontend'){
-                    withSonarQubeEnv('sonar-server'){
-                        sh 'mvn org.sonarsource.scanner.maven:sonar-maven-plugin:sonar'
+        stage('Sonar Scan') {
+            steps {
+                dir('frontend') {
+                    withSonarQubeEnv('sonar-server') {
+                        script {
+                            def scannerHome = tool(
+                                name: 'sonar-scanner',
+                                type: 'hudson.plugins.sonar.SonarRunnerInstallation'
+                            )
+
+                            sh "${scannerHome}/bin/sonar-scanner"
+                        }
                     }
                 }
             }
