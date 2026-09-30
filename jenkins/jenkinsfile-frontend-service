@@ -6,7 +6,7 @@ pipeline{
         nodejs 'nodejs'
     }
     environment{
-        aws_cred=credentials('aws_cred')
+        aws_cred=credentials('aws-cred')
     }
     stages{
         stage('checkout'){
