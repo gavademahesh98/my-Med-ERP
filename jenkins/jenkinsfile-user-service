@@ -165,6 +165,15 @@ pipeline{
                       '''
                     }
             }
-        }      
+        }
+        stage('deployment-user-service'){
+            steps{
+                sh '''
+                aws eks update-kubeconfig --region ap-south-east-1 --name dev-cluster
+                kubectl apply -f k8s/namespace/
+                kubectl apply -f k8s/
+                '''
+            }
+        }
     }
 }
