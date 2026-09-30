@@ -169,7 +169,7 @@ pipeline{
         stage('product-service-deployment'){
             steps{
                 sh '''
-                aws eks update-kubeconfig --region ap-south-east-1 --name dev-cluster
+                aws eks update-kubeconfig --region ap-southeast-1 --name dev-cluster
                 kubectl apply -f k8s/namespace/
                 kubectl apply -f k8s/configmaps/
                 kubectl apply -f k8s/secrets/
