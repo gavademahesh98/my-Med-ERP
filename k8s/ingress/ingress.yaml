@@ -19,7 +19,7 @@ metadata:
     # ValidationError: Certificate ARN 'arn:aws:acm:us-east-1:...' is not valid
     alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS": 443}]'
     alb.ingress.kubernetes.io/ssl-redirect: "443"
-    alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:ap-southeast-2:728735520903:certificate/cab946fd-e687-4d91-9b95-04c0e07d7ff5
+    alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:ap-southeast-1:655887417250:certificate/b3742736-347f-4b04-8ae2-98757876b55b
 
     # Health checks
     alb.ingress.kubernetes.io/healthcheck-path: /api/v1/actuator/health
@@ -31,14 +31,14 @@ metadata:
     # alb.ingress.kubernetes.io/wafv2-acl-arn: arn:aws:wafv2:...
 
     # Security groups
-    alb.ingress.kubernetes.io/security-groups: sg-0d08c1fb86b325ca3
+    alb.ingress.kubernetes.io/security-groups: sg-0b323fb613b8d1efd
 
     # Tags
     alb.ingress.kubernetes.io/tags: "Environment=production,Project=med-erp"
 spec:
   ingressClassName: alb
   rules:
-    - host: api.edublitzb2berp.online
+    - host: api.cloudking.fun
       http:
         paths:
           - path: /api/v1/auth
