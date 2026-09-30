@@ -4,6 +4,7 @@ pipeline{
     }
     tools{
         nodejs 'nodejs'
+        maven 'mvn'
     }
     environment{
         aws_cred=credentials('aws-cred')
