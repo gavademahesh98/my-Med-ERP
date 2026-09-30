@@ -135,7 +135,7 @@ pipeline{
                 docker tag dev-product-service:${BUILD_NUMBER} ${REPO}:${BUILD_NUMBER}
                 docker push ${REPO}:${BUILD_NUMBER}
                  echo "Cleaning unused Docker images..."
-                 docker image prune -a -f
+                 docker rmi ${REPO}:${BUILD_NUMBER}
                 """
             }
         }
