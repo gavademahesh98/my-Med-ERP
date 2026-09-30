@@ -52,6 +52,36 @@ pipeline{
                     waitForQualityGate abortPipeline: true
                 }
             }
+            post {
+
+                        failure {
+                            script {
+
+                                def sonarProperties =
+                                    readProperties file: 'frontend/.scannerwork/report-task.txt'
+
+                                def sonarIssuesUrl =
+                                    "${sonarProperties.serverUrl}/project/issues?id=${URLEncoder.encode(sonarProperties.projectKey, 'UTF-8')}"
+
+                                emailext(
+                                    subject: "SonarQube Quality Gate Failed - ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+
+                                    body: """
+                                        <p>SonarQube Quality Gate failed.</p>
+                                        <p>
+                                            <a href="${sonarIssuesUrl}">
+                                                <b>View SonarQube Issues Report</b>
+                                            </a>
+                                        </p>
+                                    """,
+
+                                    mimeType: 'text/html',
+
+                                    to: 'msgavade1111@gmail.com'
+                                )
+                            }
+                        }
+                }
         }
     }
 }
