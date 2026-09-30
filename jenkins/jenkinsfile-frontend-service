@@ -1,0 +1,28 @@
+pipeline{
+    agent{
+        label 'worker'
+    }
+    tools{
+        nodejs 'nodejs'
+    }
+    environment{
+        aws_cred=credentials('aws_cred')
+    }
+    stages{
+        stage('checkout'){
+            steps{
+                git branch: 'dev', url: 'https://github.com/gavademahesh98/my-Med-ERP.git'
+            }
+        }
+        stage('build-frontend'){
+            steps{
+                dir('frontend'){
+                    sh '''
+                    npm install
+                    npm run build
+                    '''
+                }
+            }
+        }
+    }
+}
