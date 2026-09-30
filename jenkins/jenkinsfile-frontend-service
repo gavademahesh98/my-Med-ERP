@@ -29,12 +29,14 @@ pipeline{
                 }
             }
         }
-        /*stage('sonar-scan'){
+        stage('sonar-scan'){
             steps{
                 dir('frontend'){
-                    sh 
+                    withSonarQubeEnv('sonar-server'){
+                        sh 'mvn org.sonarsource.scanner.maven:sonar-maven-plugin:sonar'
+                    }
                 }
             }
-        }*/
+        }
     }
 }
