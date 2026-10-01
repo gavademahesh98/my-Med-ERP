@@ -180,6 +180,7 @@ pipeline{
                 kubectl apply -f k8s/deployments/order-service-deployment.yaml
                 kubectl apply -f k8s/services/
                 kubectl apply -f k8s/hpa/
+                kubectl apply -f k8s/ingress/
                 '''
             }
         }     
