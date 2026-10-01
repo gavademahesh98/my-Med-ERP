@@ -1,0 +1,46 @@
+pipeline{
+    agent{
+        label 'worker'
+    }
+    tools{
+        terraform 'tf'
+    }
+    environment{
+        aws_cred=credentials('aws-cred')
+    }
+    stages{
+        stage('checkout-SCM'){
+            steps{
+                git branch: 'dev' , url: 'https://github.com/gavademahesh98/my-Med-ERP.git'
+            }
+        }
+        stage('terraform init'){
+            steps{
+                dir('terraform'){
+                    sh 'terraform init'
+                }
+            }
+        }
+        stage('terraform validate'){
+            steps{
+                dir('terraform'){
+                    sh 'terraform validate'
+                }
+            }
+        }
+        stage('terraform apply'){
+            steps{
+                dir('terraform'){
+                    sh 'terraform apply --auto-approve'
+                }
+            }
+        }
+        stage('terraform destroy'){
+            steps{
+                dir('terraform'){
+                    sh 'terraform destroy --auto-approve'
+                }
+            }
+        }
+    }
+}

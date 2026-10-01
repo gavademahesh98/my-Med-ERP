@@ -1,6 +1,7 @@
-# AWS ALB Ingress Controller — routes external traffic to microservices
+# AWS Application Load Balancer (ALB) via AWS Load Balancer Controller
 # Prerequisites:
-#   - AWS Load Balancer Controller installed on EKS
+#   - AWS Load Balancer Controller installed on EKS (see KUBERNETES_DEPLOYMENT.md)
+#   - IngressClass "alb" (apply ingressclass.yaml or use Helm defaults)
 #   - ACM certificate ARN for your domain
 #   - Route53 hosted zone configured
 apiVersion: networking.k8s.io/v1
@@ -9,16 +10,16 @@ metadata:
   name: med-erp-ingress
   namespace: med-erp
   annotations:
-    # ALB annotations
-    kubernetes.io/ingress.class: alb
     alb.ingress.kubernetes.io/scheme: internet-facing
     alb.ingress.kubernetes.io/target-type: ip
     alb.ingress.kubernetes.io/load-balancer-name: med-erp-alb
 
-    # HTTPS
+    # HTTPS — ACM cert MUST be in the SAME region as this ALB (e.g. ap-southeast-2).
+    # Do NOT use a us-east-1 certificate here (those are for CloudFront only). ELB returns:
+    # ValidationError: Certificate ARN 'arn:aws:acm:us-east-1:...' is not valid
     alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS": 443}]'
     alb.ingress.kubernetes.io/ssl-redirect: "443"
-    alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:us-east-1:ACCOUNT_ID:certificate/CERT_ID
+    alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:ap-southeast-1:655887417250:certificate/79d2ea09-7b32-433c-968e-14ea5746133e
 
     # Health checks
     alb.ingress.kubernetes.io/healthcheck-path: /api/v1/actuator/health
@@ -30,13 +31,14 @@ metadata:
     # alb.ingress.kubernetes.io/wafv2-acl-arn: arn:aws:wafv2:...
 
     # Security groups
-    alb.ingress.kubernetes.io/security-groups: sg-XXXXXXXXXX
+    alb.ingress.kubernetes.io/security-groups: sg-0b323fb613b8d1efd
 
     # Tags
     alb.ingress.kubernetes.io/tags: "Environment=production,Project=med-erp"
 spec:
+  ingressClassName: alb
   rules:
-    - host: api.med-erp.yourdomain.com
+    - host: api.cloudking.fun
       http:
         paths:
           - path: /api/v1/auth
