@@ -152,7 +152,9 @@ pipeline{
         }
         stage('image change in deployment'){
             steps{
-                sh 'sed -i "s|image: .*|image: $REPO:$BUILD_NUMBER|" k8s/deployments/${params.SERVICE}-deployment.yaml '
+                sh """
+                sed -i "s|image: .*|image: $REPO:$BUILD_NUMBER|" k8s/deployments/${params.SERVICE}-deployment.yaml
+                """
             }
         }
         stage('Image update push') {
