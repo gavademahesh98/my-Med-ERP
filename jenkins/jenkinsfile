@@ -181,7 +181,7 @@ pipeline{
                     }
             }
         }
-        stage("deployment-${params.SERVICE}"){
+        stage("deployment"){
             steps{
                 
                 sh """
