@@ -31,7 +31,7 @@ apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
   name: product-service-hpa
-  namespace: med-erp
+  namespace: dev
 spec:
   scaleTargetRef:
     apiVersion: apps/v1
@@ -58,7 +58,7 @@ apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
   name: order-service-hpa
-  namespace: med-erp
+  namespace: dev
 spec:
   scaleTargetRef:
     apiVersion: apps/v1
