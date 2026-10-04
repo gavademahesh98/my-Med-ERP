@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: product-service
-  namespace: med-erp
+  namespace: dev
   labels:
     app: product-service
     app.kubernetes.io/name: product-service

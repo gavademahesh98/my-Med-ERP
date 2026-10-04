@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: order-service
-  namespace: med-erp
+  namespace: dev
   labels:
     app: order-service
     app.kubernetes.io/name: order-service

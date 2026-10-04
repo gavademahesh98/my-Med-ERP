@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: med-erp
+  name: dev
   labels:
-    app.kubernetes.io/name: med-erp
-    environment: production
+    app.kubernetes.io/name: dev
+    environment: dev
