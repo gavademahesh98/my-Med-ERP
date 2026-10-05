@@ -8,7 +8,7 @@ spring:
     name: order-service
   data:
     mongodb:
-      uri: ${MONGODB_URI:mongodb+srv://msgavade1111_db_user:bNIJVaz46o1i2MF0@cluster0.qfpncyz.mongodb.net/orders_db?appName=Cluster0}
+      uri: ${MONGODB_URI}
       database: orders_db
   jackson:
     default-property-inclusion: non_null
@@ -16,7 +16,7 @@ spring:
       write-dates-as-timestamps: false
 
 jwt:
-  secret: ${JWT_SECRET:404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970}
+  secret: ${JWT_SECRET}
 
 management:
   endpoints:
