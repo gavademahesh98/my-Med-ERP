@@ -102,9 +102,9 @@ resource "aws_eks_node_group" "nodegroup" { // EKS Node Group resource
   instance_types = ["c7i-flex.large"]  // Instance type for the worker nodes
 
   scaling_config {
-    desired_size = 2
+    desired_size = 3
     min_size     = 1
-    max_size     = 3
+    max_size     = 4
   }
 
   depends_on = [
