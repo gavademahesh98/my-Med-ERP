@@ -35,12 +35,12 @@ pipeline{
                 }
             }
         }
-        /*stage('terraform destroy'){
+        stage('terraform destroy'){
             steps{
                 dir('terraform'){
                     sh 'terraform destroy --auto-approve'
                 }
             }
-        }*/
+        }
     }
 }
