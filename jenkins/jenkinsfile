@@ -196,10 +196,10 @@ pipeline{
                 kubectl apply -f k8s/hpa/
                 kubectl apply -f k8s/ingress/
                 sleep 30
-                kubectl get deployment -n med-erp
-                kubectl get svc -n med-erp
-                kubectl get secrets -n med-erp
-                kubectl get pod -n med-erp
+                kubectl get deployment -n dev
+                kubectl get svc -n dev
+                kubectl get secrets -n dev
+                kubectl get pod -n dev
 
                 """
                 
