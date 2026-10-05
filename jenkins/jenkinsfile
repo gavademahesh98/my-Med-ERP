@@ -147,6 +147,7 @@ pipeline{
                 docker push ${REPO}:${BUILD_NUMBER}
                  echo "Cleaning unused Docker images..."
                  docker rmi ${REPO}:${BUILD_NUMBER}
+                 docker rmi qa-${params.SERVICE}:${BUILD_NUMBER}
                 """
             }
         }
