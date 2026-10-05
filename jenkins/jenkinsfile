@@ -178,7 +178,7 @@ pipeline{
                         
                         git pull --rebase origin qa
 
-                        git push https://$USERNAME:$PASSWORD@github.com/gavademahesh98/my-Med-ERP.git HEAD: qa
+                        git push https://$USERNAME:$PASSWORD@github.com/gavademahesh98/my-Med-ERP.git HEAD:qa
                       """
                     }
                     }
