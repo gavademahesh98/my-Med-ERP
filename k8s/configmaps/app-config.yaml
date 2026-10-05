@@ -2,7 +2,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: app-config
-  namespace: dev
+  namespace: qa
   labels:
     app.kubernetes.io/part-of: med-erp
 data:

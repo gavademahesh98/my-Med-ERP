@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: dev
+  name: qa
   labels:
-    app.kubernetes.io/name: dev
-    environment: dev
+    app.kubernetes.io/name: qa
+    environment: qa
