@@ -1,0 +1,11 @@
+apiVersion: v2
+
+name: med-erp
+
+description: Helm chart for MED ERP application
+
+type: application
+
+version: 1.0.0
+
+appVersion: "1.0.0"

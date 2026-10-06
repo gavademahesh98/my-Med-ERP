@@ -2,13 +2,12 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: order-service
-  namespace: dev
   labels:
     app: order-service
     app.kubernetes.io/name: order-service
     app.kubernetes.io/part-of: med-erp
 spec:
-  replicas: 2
+  replicas: {{ .Values.orderService.replicas }}
   selector:
     matchLabels:
       app: order-service
@@ -27,13 +26,13 @@ spec:
         prometheus.io/path: "/api/v1/actuator/prometheus"
         prometheus.io/port: "8083"
     spec:
-      terminationGracePeriodSeconds: 60
+      terminationGracePeriodSeconds: {{ .Values.orderService.terminationGracePeriodSeconds }}
       containers:
         - name: order-service
-          image: 655887417250.dkr.ecr.ap-southeast-1.amazonaws.com/dev-order-service:32
-          imagePullPolicy: Always
+          image: {{ .Values.orderService.image.repository }}:{{ .Values.orderService.image.tag }}
+          imagePullPolicy: {{ .Values.orderService.imagePullPolicy }}
           ports:
-            - containerPort: 8083
+            - containerPort: {{ .Values.orderService.containerPort }}
           env:
             - name: MONGODB_URI
               valueFrom:
@@ -62,11 +61,11 @@ spec:
                   key: USER_SERVICE_URL
           resources:
             requests:
-              cpu: "250m"
-              memory: "512Mi"
-            limits:
-              cpu: "500m"
-              memory: "1Gi"
+              cpu: {{ .Values.orderService.resources.requests.cpu }}
+              memory: {{ .Values.orderService.resources.requests.memory }} 
+            limits: 
+              cpu: {{ .Values.orderService.resources.limits.cpu }}
+              memory: {{ .Values.orderService.resources.limits.memory }} 
           readinessProbe:
             httpGet:
               path: /api/v1/actuator/health/readiness
@@ -83,7 +82,6 @@ spec:
             preStop:
               exec:
                 command: ["/bin/sh", "-c", "sleep 10"]
-      
       affinity:
         podAntiAffinity:
           preferredDuringSchedulingIgnoredDuringExecution:
@@ -91,5 +89,5 @@ spec:
               podAffinityTerm:
                 labelSelector:
                   matchLabels:
-                    app: product-service
+                    app: order-service
                 topologyKey: kubernetes.io/hostname
