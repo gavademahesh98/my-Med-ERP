@@ -32,7 +32,7 @@ spec:
       terminationGracePeriodSeconds: 60
       containers:
         - name: user-service
-          image: 655887417250.dkr.ecr.ap-southeast-1.amazonaws.com/qa-user-service:2
+          image: 655887417250.dkr.ecr.ap-southeast-1.amazonaws.com/qa-user-service:8
           imagePullPolicy: Always
           ports:
             - containerPort: 8081
