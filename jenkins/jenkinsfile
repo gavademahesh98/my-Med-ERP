@@ -150,59 +150,24 @@ pipeline{
                 """
             }
         }
-        stage('image change in deployment'){
+        stage('Deployment'){
             steps{
                 sh """
-                sed -i "s|image: .*|image: $REPO:$BUILD_NUMBER|" k8s/deployments/${params.SERVICE}-deployment.yaml
-                """
-            }
-        }
-        stage('Image update push') {
-            steps {
-                withCredentials([
-                    usernamePassword(
-                        credentialsId: 'github-cred',
-                        usernameVariable: 'USERNAME',
-                        passwordVariable: 'PASSWORD'
-                    )
-                ]) {
-                    lock(resource: 'git-push'){
-                    sh """
-                        git config --global user.name "jenkins_build_$BUILD_NUMBER"
-                        git config --global user.email "jenkins.buildnumber_$BUILD_NUMBER@gmail.com"
+                    aws eks update-kubeconfig \
+                   --region ap-southeast-1 \
+                   --name dev-cluster
+                   
+                   helm upgrade --install med-erp-common ./helm/common \
+                   --namespace dev \
+                   --create-namespace
 
-                        git add k8s/deployments/${params.SERVICE}-deployment.yaml
-
-                        git commit -m "Update ${params.SERVICE} image to build $BUILD_NUMBER" || true
-                        
-                        git pull --rebase origin dev
-
-                        git push https://$USERNAME:$PASSWORD@github.com/gavademahesh98/my-Med-ERP.git HEAD:dev
-                      """
-                    }
-                    }
-            }
-        }
-        stage("deployment"){
-            steps{
-                
-                sh """
-                aws eks update-kubeconfig --region ap-southeast-1 --name dev-cluster
-                kubectl apply -f k8s/namespace/
-                kubectl apply -f k8s/configmaps/
-                kubectl apply -f k8s/external-secrets/
-                kubectl apply -f k8s/deployments/${params.SERVICE}-deployment.yaml
-                kubectl apply -f k8s/services/
-                kubectl apply -f k8s/hpa/
-                kubectl apply -f k8s/ingress/
-                sleep 30
-                kubectl get deployment -n dev
-                kubectl get svc -n dev
-                kubectl get secrets -n dev
-                kubectl get pod -n dev
+                   helm upgrade --install ${params.SERVICE} ./helm/${params.SERVICE} \
+                   --namespace dev \
+                   --create-namespace \
+                   --set-string image.repository="${REPO}" \
+                   --set-string image.tag="${BUILD_NUMBER}"
 
                 """
-                
             }
         }
     }
