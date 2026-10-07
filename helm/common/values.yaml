@@ -1,0 +1,17 @@
+externalsecret:
+  secretName: dev-externalsecret
+  awsSecretName: dev-secrets
+
+configmap:
+  JWT_EXPIRATION: "86400000"
+  JWT_REFRESH_EXPIRATION: "604800000"
+  CORS_ALLOWED_ORIGINS: "*"
+  LOW_STOCK_THRESHOLD: "10"
+
+
+ingress:
+  alb_name: dev-med-erp-alb
+  acm_certificate: arn:aws:acm:ap-southeast-1:655887417250:certificate/0adceb30-d07b-407a-ac13-e252648f0c6b
+  security_group: sg-0b323fb613b8d1efd
+  environment: dev
+  hostname: dev.api.cloudking.fun

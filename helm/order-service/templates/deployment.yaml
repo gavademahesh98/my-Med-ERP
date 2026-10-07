@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: order-service
-  namespace: qa
+  namespace: {{ .Release.Namespace }}
   labels:
     app: order-service
     app.kubernetes.io/name: order-service
@@ -30,8 +30,8 @@ spec:
       terminationGracePeriodSeconds: 60
       containers:
         - name: order-service
-          image: 655887417250.dkr.ecr.ap-southeast-1.amazonaws.com/qa-order-service:10
-          imagePullPolicy: Always
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
             - containerPort: 8083
           env:
@@ -62,11 +62,11 @@ spec:
                   key: USER_SERVICE_URL
           resources:
             requests:
-              cpu: "250m"
-              memory: "512Mi"
+              cpu: {{ .Values.resources.requests.cpu }}
+              memory: {{ .Values.resources.requests.memory }}
             limits:
-              cpu: "500m"
-              memory: "1Gi"
+              cpu: {{ .Values.resources.limits.cpu }}
+              memory: {{ .Values.resources.limits.memory }}
           readinessProbe:
             httpGet:
               path: /api/v1/actuator/health/readiness
