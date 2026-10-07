@@ -51,7 +51,7 @@ spec:
         name: memory
         target:
           type: Utilization
-          averageUtilization: 80
+          averageUtilization: 80                                  
 
 ---
 apiVersion: autoscaling/v2
