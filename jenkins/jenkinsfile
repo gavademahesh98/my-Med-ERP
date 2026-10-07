@@ -19,8 +19,8 @@ pipeline{
 }
     environment{
         aws_cred=credentials('aws-cred')
-        REPO="655887417250.dkr.ecr.ap-southeast-1.amazonaws.com/dev-${params.SERVICE}"
         ENV = "${env.BRANCH_NAME}"
+        REPO = "655887417250.dkr.ecr.ap-southeast-1.amazonaws.com/${ENV}-${params.SERVICE}"
     }
     stages{
         stage('checkout-scm'){
