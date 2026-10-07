@@ -11,7 +11,7 @@ pipeline{
     stages{
         stage('checkout-SCM'){
             steps{
-                git branch: 'dev' , url: 'https://github.com/gavademahesh98/my-Med-ERP.git'
+                git branch: 'qa' , url: 'https://github.com/gavademahesh98/my-Med-ERP.git'
             }
         }
         stage('terraform init'){
