@@ -153,8 +153,9 @@ pipeline{
 
                    helm upgrade --install user-service ./helm/user-service \
                    --namespace dev \
-                   --set image.repository=${REPO}
-                   --set image.tag=${BUILD_NUMBER}
+                   --create-namespace \
+                   --set-string image.repository="${REPO}" \
+                   --set-string image.tag="${BUILD_NUMBER}"
 
                 """
             }
