@@ -7,10 +7,10 @@ metadata:
     app.kubernetes.io/part-of: med-erp
 data:
   # Shared configuration across all services
-  JWT_EXPIRATION: {{ .Values.configmap.JWT_EXPIRATION}}
-  JWT_REFRESH_EXPIRATION: {{ .Values.configmap.JWT_REFRESH_EXPIRATION }}
-  CORS_ALLOWED_ORIGINS: {{ .Values.configmap.CORS_ALLOWED_ORIGINS }}
-  LOW_STOCK_THRESHOLD: {{ .Values.configmap.LOW_STOCK_THRESHOLD }}
+  JWT_EXPIRATION: "{{ .Values.configmap.JWT_EXPIRATION}}"
+  JWT_REFRESH_EXPIRATION: "{{ .Values.configmap.JWT_REFRESH_EXPIRATION }}"
+  CORS_ALLOWED_ORIGINS: "{{ .Values.configmap.CORS_ALLOWED_ORIGINS }}"
+  LOW_STOCK_THRESHOLD: "{{ .Values.configmap.LOW_STOCK_THRESHOLD }}"
 
   # Inter-service URLs (using Kubernetes ClusterIP service names)
   PRODUCT_SERVICE_URL: "http://product-service:8082/api/v1"
