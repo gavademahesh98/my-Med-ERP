@@ -1,7 +1,7 @@
 replicas: 2
 image:
-  repository: 655887417250.dkr.ecr.ap-southeast-1.amazonaws.com/dev-user-service
-  tag: "latest"
+  repository: ""   # It will update via deployment steps
+  tag: ""         # It will update via deployment steps
   pullPolicy: Always
 port:
   containerPort: 8081

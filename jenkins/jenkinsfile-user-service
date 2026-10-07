@@ -142,20 +142,21 @@ pipeline{
         }
         stage('Deployment'){
             steps{
-                sh ''' 
+                sh """
                     aws eks update-kubeconfig \
                    --region ap-southeast-1 \
                    --name dev-cluster
                    
                    helm upgrade --install med-erp-common ./helm/common \
-                --namespace dev \
-                --create-namespace
+                   --namespace dev \
+                   --create-namespace
 
-                helm upgrade --install user-service ./helm/user-service \
-                --namespace dev \
-                --set image.tag=${BUILD_NUMBER}
+                   helm upgrade --install user-service ./helm/user-service \
+                   --namespace dev \
+                   --set image.repository=${REPO}
+                   --set image.tag=${BUILD_NUMBER}
 
-                '''
+                """
             }
         }
     }
