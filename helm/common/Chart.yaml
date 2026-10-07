@@ -1,0 +1,11 @@
+apiVersion: v2
+
+name: med-erp-common
+
+description: Common Kubernetes resources for Med ERP
+
+type: application
+
+version: 1.0.0
+
+appVersion: "1.0.0"

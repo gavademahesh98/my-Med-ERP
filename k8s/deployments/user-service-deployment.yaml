@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: user-service
-  namespace: med-erp
+  namespace: dev
   labels:
     app: user-service
     app.kubernetes.io/name: user-service
@@ -32,7 +32,7 @@ spec:
       terminationGracePeriodSeconds: 60
       containers:
         - name: user-service
-          image: YOUR_ECR_REGISTRY/user-service:latest
+          image: 655887417250.dkr.ecr.ap-southeast-1.amazonaws.com/dev-user-service:33
           imagePullPolicy: Always
           ports:
             - containerPort: 8081

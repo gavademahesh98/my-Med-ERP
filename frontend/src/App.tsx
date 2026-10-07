@@ -3,12 +3,14 @@ import { useAuthStore } from './store/authStore'
 import LoginPage from './pages/auth/LoginPage'
 import RegisterPage from './pages/auth/RegisterPage'
 import AdminDashboard from './pages/admin/AdminDashboard'
+import AdminOrganizationsPage from './pages/admin/AdminOrganizationsPage'
 import DistributorDashboard from './pages/distributor/DistributorDashboard'
 import HospitalDashboard from './pages/hospital/HospitalDashboard'
 import ProductsPage from './pages/ProductsPage'
 import InventoryPage from './pages/InventoryPage'
 import OrdersPage from './pages/OrdersPage'
 import OrderDetailPage from './pages/OrderDetailPage'
+import NewOrderPage from './pages/NewOrderPage'
 import DashboardLayout from './components/layout/DashboardLayout'
 import NotFoundPage from './pages/NotFoundPage'
 
@@ -54,6 +56,9 @@ export default function App() {
         <Route path="admin" element={
           <RoleRoute role="ADMIN"><AdminDashboard /></RoleRoute>
         } />
+        <Route path="admin/organizations" element={
+          <RoleRoute role="ADMIN"><AdminOrganizationsPage /></RoleRoute>
+        } />
 
         <Route path="distributor" element={
           <RoleRoute role="DISTRIBUTOR"><DistributorDashboard /></RoleRoute>
@@ -66,6 +71,9 @@ export default function App() {
         <Route path="products" element={<ProductsPage />} />
         <Route path="inventory" element={<InventoryPage />} />
         <Route path="orders" element={<OrdersPage />} />
+        <Route path="orders/new" element={
+          <RoleRoute role="HOSPITAL"><NewOrderPage /></RoleRoute>
+        } />
         <Route path="orders/:id" element={<OrderDetailPage />} />
       </Route>
 

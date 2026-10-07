@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { useParams, useNavigate } from 'react-router-dom'
+import { useParams, useNavigate, Link } from 'react-router-dom'
 import { ArrowLeft, CheckCircle, XCircle, Truck, Package } from 'lucide-react'
 import { ordersApi } from '../api/orders'
 import { useAuthStore } from '../store/authStore'
@@ -21,28 +21,39 @@ export default function OrderDetailPage() {
 
   const invalidate = () => queryClient.invalidateQueries({ queryKey: ['order', id] })
 
+  const apiErrorDetail = (err: unknown) =>
+    (err as { response?: { data?: { detail?: string } } })?.response?.data?.detail
+
   const approveMutation = useMutation({
     mutationFn: () => ordersApi.approve(id!),
     onSuccess: () => { toast.success('Order approved'); invalidate() },
-    onError: () => toast.error('Failed to approve order'),
+    onError: (err: unknown) => {
+      toast.error(apiErrorDetail(err) ?? 'Failed to approve order')
+    },
   })
 
   const rejectMutation = useMutation({
     mutationFn: () => ordersApi.reject(id!, 'Rejected by distributor'),
     onSuccess: () => { toast.success('Order rejected'); invalidate() },
-    onError: () => toast.error('Failed to reject order'),
+    onError: (err: unknown) => {
+      toast.error(apiErrorDetail(err) ?? 'Failed to reject order')
+    },
   })
 
   const dispatchMutation = useMutation({
     mutationFn: () => ordersApi.dispatch(id!, `TRK-${Date.now()}`),
     onSuccess: () => { toast.success('Order dispatched'); invalidate() },
-    onError: () => toast.error('Failed to dispatch order'),
+    onError: (err: unknown) => {
+      toast.error(apiErrorDetail(err) ?? 'Failed to dispatch order')
+    },
   })
 
   const deliverMutation = useMutation({
     mutationFn: () => ordersApi.confirmDelivery(id!),
     onSuccess: () => { toast.success('Delivery confirmed'); invalidate() },
-    onError: () => toast.error('Failed to confirm delivery'),
+    onError: (err: unknown) => {
+      toast.error(apiErrorDetail(err) ?? 'Failed to confirm delivery')
+    },
   })
 
   if (isLoading) {
@@ -78,26 +89,41 @@ export default function OrderDetailPage() {
 
       {/* Action buttons */}
       {isDistributor && order.status === 'PENDING' && (
-        <div className="flex gap-3">
-          <button
-            onClick={() => approveMutation.mutate()}
-            disabled={approveMutation.isPending}
-            className="btn-primary flex items-center gap-2"
-          >
-            <CheckCircle className="w-4 h-4" /> Approve Order
-          </button>
-          <button
-            onClick={() => rejectMutation.mutate()}
-            disabled={rejectMutation.isPending}
-            className="btn-danger flex items-center gap-2"
-          >
-            <XCircle className="w-4 h-4" /> Reject
-          </button>
-        </div>
+        <>
+          <div className="rounded-lg border border-blue-100 bg-blue-50 px-4 py-3 text-sm text-blue-950">
+            <p className="font-medium text-blue-900">Before you approve</p>
+            <p className="mt-1 text-blue-900/90">
+              Approval reserves real inventory per line item. Add batches under{' '}
+              <Link to="/inventory" className="font-semibold underline hover:no-underline">
+                Inventory → Add stock (batch)
+              </Link>{' '}
+              (or use <strong>Stock</strong> on a product in the catalog) so sellable quantity covers each ordered SKU.
+            </p>
+          </div>
+          <div className="flex gap-3">
+            <button
+              type="button"
+              onClick={() => approveMutation.mutate()}
+              disabled={approveMutation.isPending}
+              className="btn-primary flex items-center gap-2"
+            >
+              <CheckCircle className="w-4 h-4" /> Approve Order
+            </button>
+            <button
+              type="button"
+              onClick={() => rejectMutation.mutate()}
+              disabled={rejectMutation.isPending}
+              className="btn-danger flex items-center gap-2"
+            >
+              <XCircle className="w-4 h-4" /> Reject
+            </button>
+          </div>
+        </>
       )}
 
       {isDistributor && order.status === 'APPROVED' && (
         <button
+          type="button"
           onClick={() => dispatchMutation.mutate()}
           disabled={dispatchMutation.isPending}
           className="btn-primary flex items-center gap-2"
@@ -108,6 +134,7 @@ export default function OrderDetailPage() {
 
       {isHospital && order.status === 'DISPATCHED' && (
         <button
+          type="button"
           onClick={() => deliverMutation.mutate()}
           disabled={deliverMutation.isPending}
           className="btn-primary flex items-center gap-2"
@@ -186,7 +213,7 @@ export default function OrderDetailPage() {
             <thead>
               <tr className="text-left text-xs text-gray-500 border-b border-gray-100">
                 <th className="pb-3 font-medium">Product</th>
-                <th className="pb-3 font-medium">SKU</th>
+                <th className="pb-3 font-medium">Stock Keeping Unit (SKU)</th>
                 <th className="pb-3 font-medium text-center">Qty</th>
                 <th className="pb-3 font-medium text-right">Unit Price</th>
                 <th className="pb-3 font-medium text-right">GST</th>

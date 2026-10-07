@@ -13,11 +13,14 @@ import java.util.Optional;
 @Repository
 public interface ProductRepository extends MongoRepository<Product, String> {
 
-    Optional<Product> findBySku(String sku);
+    Optional<Product> findBySkuAndActiveTrue(String sku);
 
-    boolean existsBySku(String sku);
+    boolean existsBySkuAndActiveTrue(String sku);
 
     Page<Product> findByCategoryAndActiveTrue(Product.ProductCategory category, Pageable pageable);
+
+    Page<Product> findByCategoryAndDistributorIdAndActiveTrue(
+            Product.ProductCategory category, String distributorId, Pageable pageable);
 
     Page<Product> findByDistributorIdAndActiveTrue(String distributorId, Pageable pageable);
 
@@ -25,6 +28,9 @@ public interface ProductRepository extends MongoRepository<Product, String> {
 
     @Query("{ 'name': { $regex: ?0, $options: 'i' }, 'active': true }")
     Page<Product> searchByName(String namePattern, Pageable pageable);
+
+    @Query("{ 'name': { $regex: ?0, $options: 'i' }, 'active': true, 'distributorId': ?1 }")
+    Page<Product> searchByNameAndDistributor(String namePattern, String distributorId, Pageable pageable);
 
     List<Product> findByDistributorId(String distributorId);
 }

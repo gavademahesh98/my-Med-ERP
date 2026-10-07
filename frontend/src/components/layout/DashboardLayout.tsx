@@ -1,14 +1,16 @@
 import { Outlet, NavLink, useNavigate } from 'react-router-dom'
 import { useAuthStore } from '../../store/authStore'
 import {
-  LayoutDashboard, Package, Boxes, ShoppingCart,
-  LogOut, Menu, X, Activity, Users
+  LayoutDashboard, Package, Boxes, ShoppingCart, Building2,
+  LogOut, Menu, X, Activity
 } from 'lucide-react'
 import { useState } from 'react'
 import clsx from 'clsx'
+import { CopyrightNotice } from '../CopyrightNotice'
 
 const navLinks = [
   { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard, roles: ['ADMIN', 'DISTRIBUTOR', 'HOSPITAL'] },
+  { to: '/admin/organizations', label: 'Organizations', icon: Building2, roles: ['ADMIN'] },
   { to: '/products', label: 'Products', icon: Package, roles: ['ADMIN', 'DISTRIBUTOR', 'HOSPITAL'] },
   { to: '/inventory', label: 'Inventory', icon: Boxes, roles: ['ADMIN', 'DISTRIBUTOR'] },
   { to: '/orders', label: 'Orders', icon: ShoppingCart, roles: ['ADMIN', 'DISTRIBUTOR', 'HOSPITAL'] },
@@ -126,6 +128,10 @@ export default function DashboardLayout() {
         <main className="flex-1 overflow-y-auto p-6">
           <Outlet />
         </main>
+
+        <footer className="shrink-0 border-t border-gray-200 bg-white px-6 py-3">
+          <CopyrightNotice className="text-gray-500" />
+        </footer>
       </div>
     </div>
   )

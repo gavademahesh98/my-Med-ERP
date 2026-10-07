@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: order-service
-  namespace: med-erp
+  namespace: dev
   labels:
     app: order-service
     app.kubernetes.io/name: order-service
@@ -30,7 +30,7 @@ spec:
       terminationGracePeriodSeconds: 60
       containers:
         - name: order-service
-          image: YOUR_ECR_REGISTRY/order-service:latest
+          image: 655887417250.dkr.ecr.ap-southeast-1.amazonaws.com/dev-order-service:32
           imagePullPolicy: Always
           ports:
             - containerPort: 8083
@@ -83,3 +83,13 @@ spec:
             preStop:
               exec:
                 command: ["/bin/sh", "-c", "sleep 10"]
+      
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchLabels:
+                    app: product-service
+                topologyKey: kubernetes.io/hostname

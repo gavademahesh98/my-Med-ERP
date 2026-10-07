@@ -1,0 +1,164 @@
+pipeline{
+    agent{
+        label 'worker'
+    }
+    tools{
+        maven 'mvn'
+        jdk 'java17'
+    }
+    environment{
+        aws_cred=credentials('aws-cred')
+        REPO='655887417250.dkr.ecr.ap-southeast-1.amazonaws.com/dev-user-service'
+    }
+    stages{
+        stage('checkout-scm'){
+            steps{
+                git branch: 'dev', url: 'https://github.com/gavademahesh98/my-Med-ERP.git'
+            }
+        }
+        stage('maven-build'){
+            steps{
+                dir('user-service'){
+                    sh 'mvn clean package'
+                }
+            }
+            post{
+                success{
+                    archiveArtifacts artifacts: '**user-service/target/*.jar' , fingerprint: true 
+                }
+            }
+        }
+        stage('sonar-scan'){
+            steps{
+                dir('user-service'){
+                    withSonarQubeEnv('sonar-server'){
+                       sh 'mvn org.sonarsource.scanner.maven:sonar-maven-plugin:sonar'
+                    }
+                }
+            }
+        }
+        stage('quality-Gate'){
+            steps{
+                timeout(time: 5, unit:'MINUTES'){
+                    waitForQualityGate abortPipeline: true
+                }
+            }
+                post {
+
+                        failure {
+                            script {
+
+                                def sonarProperties =
+                                    readProperties file: 'user-service/target/sonar/report-task.txt'
+
+                                def sonarIssuesUrl =
+                                    "${sonarProperties.serverUrl}/project/issues?id=${URLEncoder.encode(sonarProperties.projectKey, 'UTF-8')}"
+
+                                emailext(
+                                    subject: "SonarQube Quality Gate Failed - ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+
+                                    body: """
+                                        <p>SonarQube Quality Gate failed.</p>
+                                        <p>
+                                            <a href="${sonarIssuesUrl}">
+                                                <b>View SonarQube Issues Report</b>
+                                            </a>
+                                        </p>
+                                    """,
+
+                                    mimeType: 'text/html',
+
+                                    to: 'msgavade1111@gmail.com'
+                                )
+                            }
+                        }
+                }
+        }
+        stage('artifacts to s3'){
+            steps{
+                sh 'aws s3 cp user-service/target/*.jar  s3://dev-user-service-artifacts/'
+            }
+        }
+        stage('docker-build-service'){
+            steps{
+                dir('user-service'){
+                    sh "docker build -t dev-user-service:${BUILD_NUMBER} . "
+                    sh 'docker images'
+                }
+            }
+        }
+        stage('Trivy Scan') {
+            steps {
+
+                // Generate Jenkins-readable ASCII report
+                sh """
+                    TMPDIR=/var/lib/trivy-tmp trivy image \
+                        --cache-dir=/var/lib/trivy-cache \
+                        --scanners vuln \
+                        --severity HIGH,CRITICAL \
+                        --ignore-unfixed \
+                        --format table \
+                        dev-user-service:${BUILD_NUMBER} \
+                        | iconv -f UTF-8 -t ASCII//TRANSLIT \
+                        > trivy-report.txt
+                """
+
+                // Security gate
+                sh """
+                    TMPDIR=/var/lib/trivy-tmp trivy image \
+                        --cache-dir=/var/lib/trivy-cache \
+                        --scanners vuln \
+                        --severity HIGH,CRITICAL \
+                        --ignore-unfixed \
+                        --exit-code 0 \
+                        dev-user-service:${BUILD_NUMBER}
+                """
+            }
+
+            post {
+                always {
+                    archiveArtifacts(
+                        artifacts: 'trivy-report.txt',
+                        fingerprint: true,
+                        allowEmptyArchive: false
+                    )
+                }
+            }
+        }
+        stage('image push to ECR'){
+            steps{
+                sh """
+                aws ecr get-login-password --region ap-southeast-1 | \
+                docker login --username AWS --password-stdin \
+                655887417250.dkr.ecr.ap-southeast-1.amazonaws.com
+
+                docker tag dev-user-service:${BUILD_NUMBER} ${REPO}:${BUILD_NUMBER}
+                docker push ${REPO}:${BUILD_NUMBER}
+                 echo "Cleaning unused Docker images..."
+                 docker rmi ${REPO}:${BUILD_NUMBER}
+                 docker rmi dev-user-service:${BUILD_NUMBER}
+                """
+            }
+        }
+        stage('Deployment'){
+            steps{
+                sh """
+                    aws eks update-kubeconfig \
+                   --region ap-southeast-1 \
+                   --name dev-cluster
+                   
+                   helm upgrade --install med-erp-common ./helm/common \
+                   --namespace dev \
+                   --create-namespace
+
+                   helm upgrade --install user-service ./helm/user-service \
+                   --namespace dev \
+                   --create-namespace \
+                   --set-string image.repository="${REPO}" \
+                   --set-string image.tag="${BUILD_NUMBER}"
+
+                """
+            }
+        }
+    }
+}

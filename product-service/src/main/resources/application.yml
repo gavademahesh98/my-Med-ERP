@@ -8,7 +8,7 @@ spring:
     name: product-service
   data:
     mongodb:
-      uri: ${MONGODB_URI:mongodb://localhost:27017/products_db}
+      uri: ${MONGODB_URI:mongodb+srv://msgavade1111_db_user:bNIJVaz46o1i2MF0@cluster0.qfpncyz.mongodb.net/products_db?appName=Cluster0}
       database: products_db
   jackson:
     default-property-inclusion: non_null
@@ -23,6 +23,10 @@ management:
     web:
       exposure:
         include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      probes:
+        enabled: true
 
 springdoc:
   api-docs:
@@ -35,7 +39,7 @@ logging:
     com.edublitz: INFO
 
 cors:
-  allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:5173,http://localhost:3000}
+  allowed-origins: ${CORS_ALLOWED_ORIGINS:*}
 
 stock:
   low-threshold: ${LOW_STOCK_THRESHOLD:10}
