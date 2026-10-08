@@ -147,11 +147,11 @@ pipeline{
                    --name dev-cluster
                    
                    helm upgrade --install med-erp-common ./helm/common \
-                   --namespace qa \
+                   --namespace dev \
                    --create-namespace
 
                    helm upgrade --install order-service ./helm/order-service \
-                   --namespace qa \
+                   --namespace dev \
                    --create-namespace \
                    --set-string image.repository="${REPO}" \
                    --set-string image.tag="${BUILD_NUMBER}"
