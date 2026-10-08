@@ -19,13 +19,12 @@ pipeline{
 }
     environment{
         aws_cred=credentials('aws-cred')
-        ENV = "${env.BRANCH_NAME}"
-        REPO = "655887417250.dkr.ecr.ap-southeast-1.amazonaws.com/${ENV}-${params.SERVICE}"
+        REPO = "655887417250.dkr.ecr.ap-southeast-1.amazonaws.com/dev-${params.SERVICE}"
     }
     stages{
         stage('checkout-scm'){
             steps{
-                git branch: "${ENV}", url: 'https://github.com/gavademahesh98/my-Med-ERP.git'
+                git branch: "dev", url: 'https://github.com/gavademahesh98/my-Med-ERP.git'
             }
         }
         stage('maven-build'){
@@ -88,13 +87,13 @@ pipeline{
         }
         stage('artifacts to s3'){
             steps{
-                sh "aws s3 cp ${params.SERVICE}/target/*.jar  s3://${ENV}-${params.SERVICE}-artifacts/"
+                sh "aws s3 cp ${params.SERVICE}/target/*.jar  s3://dev-${params.SERVICE}-artifacts/"
             }
         }
         stage('docker-build-service'){
             steps{
                 dir("${params.SERVICE}"){
-                    sh "docker build -t ${ENV}-${params.SERVICE}:${BUILD_NUMBER} . "
+                    sh "docker build -t dev-${params.SERVICE}:${BUILD_NUMBER} . "
                     sh 'docker images'
                 }
             }
@@ -110,7 +109,7 @@ pipeline{
                         --severity HIGH,CRITICAL \
                         --ignore-unfixed \
                         --format table \
-                        ${ENV}-${params.SERVICE}:${BUILD_NUMBER} \
+                        dev-${params.SERVICE}:${BUILD_NUMBER} \
                         | iconv -f UTF-8 -t ASCII//TRANSLIT \
                         > trivy-report.txt
                 """
@@ -123,7 +122,7 @@ pipeline{
                         --severity HIGH,CRITICAL \
                         --ignore-unfixed \
                         --exit-code 0 \
-                        ${ENV}-${params.SERVICE}:${BUILD_NUMBER}
+                        dev-${params.SERVICE}:${BUILD_NUMBER}
                 """
             }
 
@@ -144,11 +143,11 @@ pipeline{
                 docker login --username AWS --password-stdin \
                 655887417250.dkr.ecr.ap-southeast-1.amazonaws.com
 
-                docker tag ${ENV}-${params.SERVICE}:${BUILD_NUMBER} ${REPO}:${BUILD_NUMBER}
+                docker tag dev-${params.SERVICE}:${BUILD_NUMBER} ${REPO}:${BUILD_NUMBER}
                 docker push ${REPO}:${BUILD_NUMBER}
                  echo "Cleaning unused Docker images..."
                  docker rmi ${REPO}:${BUILD_NUMBER}
-                 docker rmi qa-${params.SERVICE}:${BUILD_NUMBER}
+                 docker rmi dev-${params.SERVICE}:${BUILD_NUMBER}
                 """
             }
         }
@@ -160,11 +159,11 @@ pipeline{
                    --name dev-cluster
                    
                    helm upgrade --install med-erp-common ./helm/common \
-                   --namespace ${ENV} \
+                   --namespace dev \
                    --create-namespace
 
                    helm upgrade --install ${params.SERVICE} ./helm/${params.SERVICE} \
-                   --namespace ${ENV} \
+                   --namespace dev \
                    --create-namespace \
                    --set-string image.repository="${REPO}" \
                    --set-string image.tag="${BUILD_NUMBER}"
