@@ -6,13 +6,20 @@ pipeline{
         nodejs 'nodejs'
         maven 'mvn'
     }
+    parameters {
+        choice(
+            name: 'ENV',
+            choices: ['dev', 'qa'],
+            description: 'Deployment environment'
+        )
+    }
     environment{
         aws_cred=credentials('aws-cred')
     }
     stages{
         stage('checkout'){
             steps{
-                git branch: 'dev', url: 'https://github.com/gavademahesh98/my-Med-ERP.git'
+                git branch: "${params.ENV}", url: 'https://github.com/gavademahesh98/my-Med-ERP.git'
             }
         }
         stage('build-frontend'){
@@ -85,7 +92,7 @@ pipeline{
         }
         stage('Push to s3'){
             steps{
-                sh 'aws s3 sync frontend/dist/ s3://dev-frontend-service-artifacts/'
+                sh "aws s3 sync frontend/dist/ s3://${params.ENV}-frontend-service-artifacts/"
             }
         }
     }
