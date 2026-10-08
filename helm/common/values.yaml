@@ -1,5 +1,5 @@
 externalsecret:
-  secretName: dev-externalsecret
+  secretName: externalsecret
   awsSecretName: dev-secrets
 
 configmap:
