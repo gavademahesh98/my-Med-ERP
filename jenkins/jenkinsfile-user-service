@@ -89,7 +89,7 @@ pipeline{
         }
         stage('Trivy Scan') {
             steps {
-
+                  lock('git-push') {
                 // Generate Jenkins-readable ASCII report
                 sh """
                     TMPDIR=/var/lib/trivy-tmp trivy image \
@@ -113,6 +113,7 @@ pipeline{
                         --exit-code 0 \
                         dev-user-service:${BUILD_NUMBER}
                 """
+                  }
             }
 
             post {
