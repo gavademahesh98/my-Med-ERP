@@ -6,14 +6,21 @@ pipeline{
         maven 'mvn'
         jdk 'java17'
     }
+    parameters {
+        choice(
+            name: 'ENV',
+            choices: ['dev', 'qa'],
+            description: 'Deployment environment'
+        )
+    }
     environment{
         aws_cred=credentials('aws-cred')
-        REPO='655887417250.dkr.ecr.ap-southeast-1.amazonaws.com/dev-product-service'
+        REPO="655887417250.dkr.ecr.ap-southeast-1.amazonaws.com/${params.ENV}-product-service"
     }
     stages{
         stage('checkout-scm'){
             steps{
-                git branch: 'dev', url: 'https://github.com/gavademahesh98/my-Med-ERP.git'
+                git branch: "${params.ENV}", url: 'https://github.com/gavademahesh98/my-Med-ERP.git'
             }
         }
         stage('maven-build'){
@@ -76,13 +83,13 @@ pipeline{
         }
         stage('artifacts to s3'){
             steps{
-                sh 'aws s3 cp product-service/target/*.jar  s3://dev-product-service-artifacts/'
+                sh "aws s3 cp product-service/target/*.jar  s3://${params.ENV}-product-service-artifacts/"
             }
         }
         stage('docker-build-service'){
             steps{
                 dir('product-service'){
-                    sh "docker build -t dev-product-service:${BUILD_NUMBER} . "
+                    sh "docker build -t ${params.ENV}-product-service:${BUILD_NUMBER} . "
                     sh 'docker images'
                 }
             }
@@ -99,7 +106,7 @@ pipeline{
                         --severity HIGH,CRITICAL \
                         --ignore-unfixed \
                         --format table \
-                        dev-product-service:${BUILD_NUMBER} \
+                        ${params.ENV}-product-service:${BUILD_NUMBER} \
                         | iconv -f UTF-8 -t ASCII//TRANSLIT \
                         > trivy-report.txt
                 """
@@ -112,7 +119,7 @@ pipeline{
                         --severity HIGH,CRITICAL \
                         --ignore-unfixed \
                         --exit-code 0 \
-                        dev-product-service:${BUILD_NUMBER}
+                        ${params.ENV}-product-service:${BUILD_NUMBER}
                 """
                 } 
             }
@@ -134,10 +141,12 @@ pipeline{
                 docker login --username AWS --password-stdin \
                 655887417250.dkr.ecr.ap-southeast-1.amazonaws.com
 
-                docker tag dev-product-service:${BUILD_NUMBER} ${REPO}:${BUILD_NUMBER}
+                docker tag ${params.ENV}-product-service:${BUILD_NUMBER} ${REPO}:${BUILD_NUMBER}
                 docker push ${REPO}:${BUILD_NUMBER}
                  echo "Cleaning unused Docker images..."
                  docker rmi ${REPO}:${BUILD_NUMBER}
+                 docker rmi ${params.ENV}-product-service:${BUILD_NUMBER}
+
                 """
             }
         }
@@ -150,11 +159,11 @@ pipeline{
                    --name dev-cluster
                    
                    helm upgrade --install med-erp-common ./helm/common \
-                   --namespace dev \
+                   --namespace ${params.ENV} \
                    --create-namespace
 
                    helm upgrade --install product-service ./helm/product-service \
-                   --namespace dev \
+                   --namespace ${params.ENV} \
                    --create-namespace \
                    --set-string image.repository="${REPO}" \
                    --set-string image.tag="${BUILD_NUMBER}"
