@@ -171,5 +171,26 @@ pipeline{
                 """
             }
         }
+        stage('Push-change-in values.yaml'){
+            steps{
+                withCredentials([usernamePassword(
+                credentialsId: 'github-cred',
+                usernameVariable: 'GIT_USERNAME',
+                passwordVariable: 'GIT_PASSWORD'
+            )]) {
+                sh """
+                    set -eu
+
+                    git config user.name "Jenkins"
+                    git config user.email "jenkins@gmail.com"
+
+                    git add helm/product-service/values.yaml
+                    git commit -m "Update product-service image tag"
+
+                    git push https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/gavademahesh98/my-Med-ERP.git HEAD:${params.ENV}
+                """
+            }
+            }
+        }
     }
 }
