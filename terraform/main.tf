@@ -103,7 +103,7 @@ resource "aws_eks_node_group" "nodegroup" { // EKS Node Group resource
 
   scaling_config {
     desired_size = 0
-    min_size     = 1
+    min_size     = 0
     max_size     = 4
   }
 
