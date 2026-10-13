@@ -1,7 +1,7 @@
 replicas: 2
 image:
-  repository: ""   # It will update via deployment steps
-  tag: ""         # It will update via deployment steps
+  repository: "655887417250.dkr.ecr.ap-southeast-1.amazonaws.com/qa-product-service"   # It will update via deployment steps
+  tag: "5"         # It will update via deployment steps
   pullPolicy: Always
 port:
   containerPort: 8082
