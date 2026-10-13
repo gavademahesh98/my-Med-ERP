@@ -149,23 +149,22 @@ pipeline{
                 """
             }
         }
-         stage('Deployment'){
+         stage('Update Helm Values for GitOps'){
             steps{
                 sh """
-                    aws eks update-kubeconfig \
-                   --region ap-southeast-1 \
-                   --name dev-cluster
-                   
-                   helm upgrade --install med-erp-common ./helm/common \
-                   --namespace ${params.ENV} \
-                   --create-namespace
+                  set -eu
 
-                   helm upgrade --install order-service ./helm/order-service \
-                   --namespace ${params.ENV} \
-                   --create-namespace \
-                   --set-string image.repository="${REPO}" \
-                   --set-string image.tag="${BUILD_NUMBER}"
+            VALUES_FILE="helm/order-service/values.yaml"
 
+            sed -i \
+              "s|^[[:space:]]*repository:.*|  repository: \\"${REPO}\\"|" \
+              "\${VALUES_FILE}"
+
+            sed -i \
+              "s|^[[:space:]]*tag:.*|  tag: \\"${BUILD_NUMBER}\\"|" \
+              "\${VALUES_FILE}"
+
+            git diff -- "\${VALUES_FILE}"
                 """
             }
          }
