@@ -1,7 +1,7 @@
 replicas: 2
 image:
   repository: "655887417250.dkr.ecr.ap-southeast-1.amazonaws.com/dev-user-service"
-  tag: "10"
+  tag: "15"
   pullPolicy: Always
 port:
   containerPort: 8081
